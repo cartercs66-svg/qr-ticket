@@ -228,3 +228,66 @@ h1{margin:0 0 12px}#reader{width:min(520px,92vw)}</style></head>
 const PORT = process.env.PORT || 3000;
 dbInit().then(() => app.listen(PORT, () => console.log('Server running on', PORT)))
        .catch(err => { console.error('DB init failed:', err); process.exit(1); });
+// ============ Verified Ticket System ============
+
+import crypto from "crypto";
+
+const tickets = new Map(); // in-memory store
+
+app.get("/ticket", async (req, res) => {
+  const sessionId = req.query.session_id;
+  if (!sessionId) return res.status(400).send("Missing session_id");
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== "paid") {
+      return res.status(400).send("Payment not completed");
+    }
+
+    // Generate unique code and QR
+    const code = crypto.randomBytes(6).toString("hex");
+    tickets.set(code, { used: false, email: session.customer_email });
+
+    const qrUrl = `${process.env.BASE_URL}/checkin?code=${code}`;
+    const qrDataUrl = await QRCode.toDataURL(qrUrl);
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.end(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width,initial-scale=1"/>
+          <title>Your Ticket</title>
+          <style>
+            body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+            img { width: 200px; height: 200px; margin: 20px; }
+          </style>
+        </head>
+        <body>
+          <h1>${process.env.EVENT_NAME}</h1>
+          <p>${process.env.EVENT_LOCATION}</p>
+          <p>${process.env.EVENT_ADDRESS}</p>
+          <img src="${qrDataUrl}" alt="Ticket QR"/>
+          <p>Show this QR at the door for entry.</p>
+        </body>
+      </html>
+    `);
+  } catch (err) {
+    console.error("Error generating ticket:", err);
+    res.status(500).send("Error generating ticket");
+  }
+});
+
+app.get("/checkin", (req, res) => {
+  const code = req.query.code;
+  const record = tickets.get(code);
+
+  if (!record) return res.status(404).send("Unknown ticket");
+  if (record.used) return res.status(403).send("Ticket already used");
+
+  record.used = true;
+  tickets.set(code, record);
+  res.send("✅ Ticket verified — welcome!");
+});
+

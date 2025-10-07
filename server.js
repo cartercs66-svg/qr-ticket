@@ -155,9 +155,12 @@ app.get('/ticket', async (req, res) => {
         <span>Save a screenshot or keep this page open</span>
       </div>
       <div class="btns">
-        <button id="printBtn" class="btn" type="button">Save / Print</button>
-        <a id="downloadQr" class="btn" download="ticket-qr.png" href="${qrDataUrl}">Download QR</a>
-      </div>
+  <button id="printBtn" class="btn" type="button">Save / Print</button>
+  <a id="downloadQr" class="btn" download="ticket-qr.png" href="">Download QR</a>
+</div>
+<script>
+  document.getElementById("printBtn")?.addEventListener("click", function(){ try{ window.print(); } catch(e) { alert("Use your browser’s Print/Share option."); } });
+</script>
     </article>
   </div>
   <script>

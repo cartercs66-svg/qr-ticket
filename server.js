@@ -230,7 +230,7 @@ dbInit().then(() => app.listen(PORT, () => console.log('Server running on', PORT
        .catch(err => { console.error('DB init failed:', err); process.exit(1); });
 // ============ Verified Ticket System ============
 
-import crypto from "crypto";
+const crypto = require("crypto");
 
 const tickets = new Map(); // in-memory store
 

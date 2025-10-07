@@ -92,7 +92,7 @@ p{color:#c8c8d6}</style></head><body>
   <script>
     document.getElementById('pay').onclick = () => {
       // Replace this with YOUR Payment Link (book.stripe.com/...)
-      window.location.href = 'https://book.stripe.com/REPLACE_WITH_YOUR_PAYMENT_LINK';
+      window.location.href = 'https://book.stripe.com/7sY5kE5LT76o6s6cXyd7q00';
     };
   </script>
 </body></html>`);
@@ -218,7 +218,7 @@ h1{margin:0 0 12px}#reader{width:min(520px,92vw)}</style></head>
       const reader = new Html5Qrcode("reader");
       const onScanSuccess = (decodedText) => {
         document.getElementById('status').textContent = 'Opening: ' + decodedText;
-        window.location.href = decodedText; // should be your /checkin?code=...
+        window.location.href = 'https://book.stripe.com/7sY5kE5LT76o6s6cXyd7q00';
       };
       const onScanFailure = () => {};
       reader.start({ facingMode:"environment" }, { fps:10, qrbox: {width:250, height:250} }, onScanSuccess, onScanFailure);
